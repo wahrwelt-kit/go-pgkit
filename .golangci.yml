@@ -1,0 +1,51 @@
+version: "2"
+linters:
+  default: all
+  disable:
+    - wsl
+    - wsl_v5
+    - varnamelen
+    - paralleltest
+    - ireturn
+    - depguard
+    - lll
+    - exhaustruct
+    - err113
+    - testpackage
+    - nlreturn
+    - noinlineerr
+    - inamedparam
+    - funcorder
+    - godot
+    - mnd
+    - wrapcheck
+
+  settings:
+    cyclop:
+      max-complexity: 25
+    gocognit:
+      min-complexity: 40
+    funlen:
+      lines: 100
+      statements: 60
+
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
+          - funlen
+          - cyclop
+          - errchkjson
+          - gosec
+          - nilnil
+          - containedctx
+          - tparallel
+      - linters:
+          - revive
+        text: "context-as-argument"
+
+formatters:
+  enable:
+    - gofmt
+    - goimports

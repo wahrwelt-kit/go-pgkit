@@ -1,4 +1,4 @@
-.PHONY: test test-race test-bench test-integration fmt vet cover tidy
+.PHONY: test test-race test-bench test-integration fmt vet lint cover tidy
 
 test:
 	go test ./...
@@ -18,6 +18,9 @@ fmt:
 
 vet:
 	go vet ./...
+
+lint:
+	golangci-lint run --fix ./...
 
 cover:
 	go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out

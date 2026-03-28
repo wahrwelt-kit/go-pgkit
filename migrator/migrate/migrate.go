@@ -1,3 +1,4 @@
+// Package migrate provides PostgreSQL migrations using golang-migrate
 package migrate
 
 import (
@@ -8,20 +9,20 @@ import (
 	"path/filepath"
 
 	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres" // postgres database driver
+	_ "github.com/golang-migrate/migrate/v4/source/file"       // file source driver
 
 	"github.com/wahrwelt-kit/go-pgkit/postgres"
 )
 
-// Run runs golang-migrate "up" from file://migrationsPath using connURL. ErrNoChange is ignored. ctx is checked before starting; if cancelled, returns ctx.Err(). The library's Up() does not accept context, so a migration in progress cannot be cancelled—on context cancellation Run returns only after the current Up() call completes. For graceful shutdown, run migrations in a separate one-off process (e.g. init container or CI job); otherwise an in-progress migration will block process exit until it finishes.
-// connURL and migrationsPath must be non-empty. migrationsPath is cleaned and should be under application control (not user input).
+// Run runs golang-migrate "up" from file://migrationsPath using connURL. ErrNoChange is ignored. ctx is checked before starting; if cancelled, returns ctx.Err(). The library's Up() does not accept context, so a migration in progress cannot be cancelled-on context cancellation Run returns only after the current Up() call completes. For graceful shutdown, run migrations in a separate one-off process (e.g. init container or CI job); otherwise an in-progress migration will block process exit until it finishes
+// connURL and migrationsPath must be non-empty. migrationsPath is cleaned and should be under application control (not user input)
 func Run(ctx context.Context, connURL, migrationsPath string) (err error) {
 	if connURL == "" {
-		return fmt.Errorf("migrate.Run: connection URL is empty")
+		return errors.New("migrate.Run: connection URL is empty")
 	}
 	if migrationsPath == "" {
-		return fmt.Errorf("migrate.Run: migrations path is empty")
+		return errors.New("migrate.Run: migrations path is empty")
 	}
 	cleanPath := filepath.Clean(migrationsPath)
 	absPath, err := filepath.Abs(cleanPath)
@@ -33,7 +34,7 @@ func Run(ctx context.Context, connURL, migrationsPath string) (err error) {
 		return fmt.Errorf("migrate.Run: migrations path: %w", err)
 	}
 	if !info.IsDir() {
-		return fmt.Errorf("migrate.Run: migrations path is not a directory")
+		return errors.New("migrate.Run: migrations path is not a directory")
 	}
 	if ctx.Err() != nil {
 		return fmt.Errorf("migrate.Run: %w", ctx.Err())

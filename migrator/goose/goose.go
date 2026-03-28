@@ -1,25 +1,27 @@
+// Package goose provides PostgreSQL migrations using pressly/goose
 package goose
 
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/jackc/pgx/v5/stdlib" // pgx postgres driver registration
 	"github.com/pressly/goose/v3"
 
 	"github.com/wahrwelt-kit/go-pgkit/postgres"
 )
 
-// Run runs pressly/goose "up" migrations from migrationsPath using the given PostgreSQL connection string. ctx is used for cancellation. connStr and migrationsPath must be non-empty. migrationsPath is cleaned with filepath.Clean and should be under application control (not user input). Uses a single connection (SetMaxOpenConns(1)).
+// Run runs pressly/goose "up" migrations from migrationsPath using the given PostgreSQL connection string. ctx is used for cancellation. connStr and migrationsPath must be non-empty. migrationsPath is cleaned with filepath.Clean and should be under application control (not user input). Uses a single connection (SetMaxOpenConns(1))
 func Run(ctx context.Context, connStr, migrationsPath string) error {
 	if connStr == "" {
-		return fmt.Errorf("goose.Run: connection string is empty")
+		return errors.New("goose.Run: connection string is empty")
 	}
 	if migrationsPath == "" {
-		return fmt.Errorf("goose.Run: migrations path is empty")
+		return errors.New("goose.Run: migrations path is empty")
 	}
 	cleanPath := filepath.Clean(migrationsPath)
 	absPath, err := filepath.Abs(cleanPath)
@@ -31,20 +33,20 @@ func Run(ctx context.Context, connStr, migrationsPath string) error {
 		return fmt.Errorf("goose.Run: migrations path: %w", err)
 	}
 	if !info.IsDir() {
-		return fmt.Errorf("goose.Run: migrations path is not a directory")
+		return errors.New("goose.Run: migrations path is not a directory")
 	}
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
 		return fmt.Errorf("goose.Run: sql.Open failed for %s: %w", postgres.MaskURL(connStr), err)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 	db.SetMaxOpenConns(1)
 
 	provider, err := goose.NewProvider(goose.DialectPostgres, db, os.DirFS(absPath))
 	if err != nil {
 		return fmt.Errorf("goose.Run: NewProvider: %w", err)
 	}
-	defer provider.Close()
+	defer func() { _ = provider.Close() }()
 
 	if _, err := provider.Up(ctx); err != nil {
 		return fmt.Errorf("goose.Run: Up: %w", err)

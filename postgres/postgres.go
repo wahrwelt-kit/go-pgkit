@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -20,13 +21,13 @@ const (
 	pgConnRetryTimeout     = 30 * time.Second
 )
 
-// New creates a pgxpool with exponential backoff until the database is reachable. ctx can cancel the retry. Returns an error if ctx or cfg is nil, the URL is invalid, or pool limits are out of range.
+// New creates a pgxpool with exponential backoff until the database is reachable. ctx can cancel the retry. Returns an error if ctx or cfg is nil, the URL is invalid, or pool limits are out of range
 func New(ctx context.Context, cfg *Config) (*pgxpool.Pool, error) {
 	if ctx == nil {
-		return nil, fmt.Errorf("postgres - New: context is nil")
+		return nil, errors.New("postgres - New: context is nil")
 	}
 	if cfg == nil {
-		return nil, fmt.Errorf("postgres - New: config is nil")
+		return nil, errors.New("postgres - New: config is nil")
 	}
 	poolCfg, err := pgxpool.ParseConfig(cfg.URL)
 	if err != nil {

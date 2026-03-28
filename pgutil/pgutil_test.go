@@ -52,8 +52,8 @@ func TestPgErrorCode(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, "23505", PgErrorCode(&pgconn.PgError{Code: "23505"}))
 	assert.Equal(t, "23503", PgErrorCode(fmt.Errorf("wrap: %w", &pgconn.PgError{Code: "23503"})))
-	assert.Equal(t, "", PgErrorCode(nil))
-	assert.Equal(t, "", PgErrorCode(errors.New("other")))
+	assert.Empty(t, PgErrorCode(nil))
+	assert.Empty(t, PgErrorCode(errors.New("other")))
 }
 
 func TestTimestamptzToTime(t *testing.T) {
