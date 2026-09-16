@@ -66,8 +66,7 @@ func IsRetryableTxError(err error) bool {
 
 // PgErrorCode extracts the SQLSTATE code from err, or "" if err is not a PgError
 func PgErrorCode(err error) string {
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
+	if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok {
 		return pgErr.Code
 	}
 	return ""

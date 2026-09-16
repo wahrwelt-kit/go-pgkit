@@ -20,7 +20,8 @@ func StartPostgres(t *testing.T) string {
 		postgres.WithUsername("u"),
 		postgres.WithPassword("p"),
 		testcontainers.WithWaitStrategy(
-			wait.ForLog("database system is ready to accept connections").WithOccurrence(2)),
+			wait.ForLog("database system is ready to accept connections").WithOccurrence(2),
+		),
 	)
 	require.NoError(t, err)
 	connStr, err := c.ConnectionString(ctx, "sslmode=disable")
