@@ -6,6 +6,8 @@
 
 PostgreSQL helpers for pgx: SQLSTATE checks, timestamptz converters, pool creation with retry, transaction helper, and migration runners (goose and golang-migrate).
 
+Requires Go 1.27.2 or later.
+
 ## Install
 
 ```bash
@@ -89,6 +91,9 @@ var t pgtype.Timestamptz
 err := pool.QueryRow(ctx, "SELECT created_at FROM users WHERE id = $1", id).Scan(&t)
 if pgutil.IsNoRows(err) {
     return ErrNotFound
+}
+if err != nil {
+    return err
 }
 createdAt := pgutil.TimestamptzToTime(t)
 ```

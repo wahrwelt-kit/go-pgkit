@@ -7,6 +7,7 @@ linters:
     - dupl
     - err113
     - exhaustruct
+    - exhaustruct_v5
     - funlen
     - gochecknoglobals
     - godoclint
@@ -152,7 +153,8 @@ formatters:
     - goimports
   settings:
     gofumpt:
-      extra-rules: true
+      extra:
+        group-params: true
     goimports:
       local-prefixes:
         - github.com/wahrwelt-kit
